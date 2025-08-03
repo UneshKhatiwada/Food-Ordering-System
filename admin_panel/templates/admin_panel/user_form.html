@@ -1,0 +1,36 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}
+    {% if user %}Edit {{ user.username }}{% else %}Add New User{% endif %}
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>{% if user %}Edit User{% else %}Add New User{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Account Information</h6>
+                            {{ u_form.as_p }}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Profile Information</h6>
+                            {{ p_form.as_p }}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="{% url 'admin_users' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

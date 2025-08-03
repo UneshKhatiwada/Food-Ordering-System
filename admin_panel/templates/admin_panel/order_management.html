@@ -1,0 +1,145 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Order Management{% endblock %}
+
+{% block page_actions %}
+<div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+        <i class="fas fa-download me-1"></i> Export
+    </button>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#">CSV</a></li>
+        <li><a class="dropdown-item" href="#">Excel</a></li>
+        <li><a class="dropdown-item" href="#">PDF</a></li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-body">
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="text" name="order_number" class="form-control" placeholder="Order #" value="{{ request.GET.order_number }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Processing" {% if request.GET.status == 'Processing' %}selected{% endif %}>Processing</option>
+                        <option value="Shipped" {% if request.GET.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                        <option value="Delivered" {% if request.GET.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                        <option value="Cancelled" {% if request.GET.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_number }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>{{ order.items.count }}</td>
+                        <td>${{ order.total }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin_update_order_status' order.id %}" class="d-flex">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+                                    <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+                                    <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{% url 'admin_order_detail' order.id %}" class="btn btn-sm btn-outline-primary" title="View">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="#" class="btn btn-sm btn-outline-danger" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteOrderModal{{ order.id }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <!-- Delete Order Modal -->
+                    <div class="modal fade" id="deleteOrderModal{{ order.id }}" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteOrderModalLabel">Confirm Delete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete order #{{ order.order_number }}? This action cannot be undone.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form method="post" action="{% url 'admin_delete_order' order.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No orders found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.order_number %}&order_number={{ request.GET.order_number }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.order_number %}&order_number={{ request.GET.order_number }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.order_number %}&order_number={{ request.GET.order_number }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

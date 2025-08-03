@@ -1,0 +1,105 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Admin Panel - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse mb-4"style="
+        box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1), 2px 0 4px -1px rgba(0, 0, 0, 0.06);
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
+        border-top: none;
+        border-left: none;
+        border-bottom: none;
+        background-color: white;">
+        <div class="position-sticky pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link text-dark {% if request.resolver_match.url_name == 'admin_dashboard' %}active bg-light{% endif %}" href="{% url 'admin_dashboard' %}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark {% if 'admin_users' in request.resolver_match.url_name %}active bg-light{% endif %}" href="{% url 'admin_users' %}">
+                        <i class="fas fa-users me-2"></i>Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark {% if 'admin_orders' in request.resolver_match.url_name %}active bg-light{% endif %}" href="{% url 'admin_orders' %}">
+                        <i class="fas fa-shopping-bag me-2"></i>Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark {% if 'admin_menu' in request.resolver_match.url_name %}active bg-light{% endif %}" href="{% url 'admin_menu' %}">
+                        <i class="fas fa-utensils me-2"></i>Menu Items
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark {% if 'admin_categories' in request.resolver_match.url_name %}active bg-light{% endif %}" href="{% url 'admin_categories' %}">
+                        <i class="fas fa-list me-2"></i>Categories
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" href="/admin/" target="_blank">
+                        <i class="fas fa-cog me-2"></i>Django Admin
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{% block page_title %}{% endblock %}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: rgba(255, 255, 255, .7);
+        padding: 0.75rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #fff;
+        background-color: rgba(255, 255, 255, .1);
+    }
+
+    .sidebar .nav-link:hover {
+        color: #fff;
+    }
+
+    main {
+        padding-top: 1.5rem;
+    }
+</style>
+{% endblock %}

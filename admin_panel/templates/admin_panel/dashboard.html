@@ -1,0 +1,172 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <p class="card-text display-6">{{ total_users }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="card-text display-6">{{ total_orders }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Menu Items</h5>
+                <p class="card-text display-6">{{ total_items }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Revenue</h5>
+                <p class="card-text display-6">${{ total_revenue }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Recent Orders</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>{{ order.order_number }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>${{ order.total }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order.status == 'Delivered' %}bg-success
+                                {% elif order.status == 'Cancelled' %}bg-danger
+                                {% elif order.status == 'Processing' %}bg-warning
+                                {% else %}bg-info{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Orders by Status</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="ordersByStatusChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Monthly Revenue</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyRevenueChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Status Counts:", {
+            Pending: {{ status_counts.Pending }},
+            Processing: {{ status_counts.Processing }},
+            Shipped: {{ status_counts.Shipped }},
+            Delivered: {{ status_counts.Delivered }},
+            Cancelled: {{ status_counts.Cancelled }}
+        });
+        console.log("Monthly Revenue Data:", {{ monthly_revenue|safe }});
+        console.log("Monthly Labels:", {{ monthly_labels|safe }});
+
+        // Orders by Status Chart
+        const ordersByStatusCtx = document.getElementById('ordersByStatusChart').getContext('2d');
+        const ordersByStatusChart = new Chart(ordersByStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+                datasets: [{
+                    data: [
+                        {{ status_counts.Pending }},
+                        {{ status_counts.Processing }},
+                        {{ status_counts.Shipped }},
+                        {{ status_counts.Delivered }},
+                        {{ status_counts.Cancelled }}
+                    ],
+                    backgroundColor: ['#0dcaf0', '#ffc107', '#fd7e14', '#198754', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Monthly Revenue Chart
+        const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        const monthlyRevenueChart = new Chart(monthlyRevenueCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|safe }},
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: {{ monthly_revenue|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

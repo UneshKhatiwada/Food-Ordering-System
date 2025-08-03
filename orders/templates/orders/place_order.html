@@ -1,0 +1,115 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Checkout - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Checkout</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="checkout-form">
+                        {% csrf_token %}
+                        <h4 class="mb-3">Delivery Information</h4>
+                        <div class="mb-3">
+                            <label for="shipping_address" class="form-label">Delivery Address</label>
+                            <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required>{{ user.profile.address }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" value="{{ user.profile.phone }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Special Instructions (Optional)</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
+                        </div>
+                        
+                        <h4 class="mb-3 mt-4">Payment Method</h4>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="cash_on_delivery" value="Cash On Delivery" checked>
+                            <label class="form-check-label" for="cash_on_delivery">
+                                Cash On Delivery
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="esewa" value="eSewa">
+                            <label class="form-check-label" for="esewa">
+                                Pay with eSewa
+                            </label>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" id="submit-button" class="btn btn-primary btn-lg">Place Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.food_item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>Rs. {{ item.get_total_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <table class="table">
+                        <tr>
+                            <th>Subtotal</th>
+                            <td>Rs. {{ cart_total }}</td>
+                        </tr>
+                        <tr>
+                            <th>Delivery Fee</th>
+                            <td>Rs. {{ delivery_fee }}</td>
+                        </tr>
+                        <tr class="table-active">
+                            <th>Total</th>
+                            <td>Rs. {{ total_with_delivery }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const submitButton = document.getElementById('submit-button');
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'eSewa' && radio.checked) {
+                submitButton.textContent = 'Pay with eSewa';
+                submitButton.classList.remove('btn-primary');
+                submitButton.classList.add('btn-success');
+            } else {
+                submitButton.textContent = 'Place Order';
+                submitButton.classList.remove('btn-success');
+                submitButton.classList.add('btn-primary');
+            }
+        });
+    });
+</script>
+{% endblock %}

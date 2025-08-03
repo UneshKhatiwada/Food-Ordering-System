@@ -1,0 +1,108 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Menu - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="py-5 mb-4 text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold" style="color: #f15a24;">Our Menu</h1>
+        <p class="lead text-muted">Discover our delicious selection of food items prepared with love.</p>
+        <form method="GET" class="p-4 bg-white rounded shadow d-inline-block mt-4" style="max-width: 800px; width: 100%;">
+            <div class="row g-3 align-items-center justify-content-center">
+                <div class="col-md-5">
+                    <input type="text" name="q" class="form-control border-0 bg-light" placeholder="Search items..." value="{{ request.GET.q }}">
+                </div>
+                <div class="col-md-5">
+                    <select name="category" class="form-select border-0 bg-light">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn w-100" style="background-color: #f15a24; border: none; color: white;">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% for item in food_items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100">
+                <div class="position-relative">
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-fluid w-100" style="height: 240px; object-fit: cover;">
+                    <div class="position-absolute top-50 start-50 translate-middle z-2">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' item.id %}" class="btn btn-warning btn-lg rounded-pill px-4 shadow">
+                            <i class="bi bi-bag-plus-fill me-1"></i> Add To Bag
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'add_to_cart' item.id %}" class="btn btn-warning btn-lg rounded-pill px-4 shadow">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login to Add
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-25"></div>
+                </div>
+                <div class="p-3">
+                    <h5 class="fw-bold">{{ item.name }}</h5>
+                    <div class="d-flex align-items-center mb-2 text-muted small">
+                        <i class="bi bi-star-fill text-warning me-1"></i> 4.5
+                        <i class="bi bi-dot mx-2"></i>
+                        <span class="text-danger fw-bold">${{ item.price }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info shadow-sm border-0 p-4 text-center">
+                <i class="bi bi-info-circle fs-4 mb-3 d-block"></i>
+                <h5>No items found</h5>
+                <p class="mb-0">Try changing your search criteria or explore different categories.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="my-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-circle mx-1 shadow-sm border-0" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <a class="page-link rounded-circle mx-1 shadow-sm border-0" href="#">{{ num }}</a>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link rounded-circle mx-1 shadow-sm border-0" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-circle mx-1 shadow-sm border-0" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

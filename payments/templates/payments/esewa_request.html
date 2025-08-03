@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+{% block title %}eSewa Payment - FoodOrder{% endblock %}
+{% block content %}
+<div class="container text-center mt-5">
+    <h2>Redirecting to eSewa...</h2>
+    <form action="{{ esewa_payment_url }}" method="POST" id="esewa-form">
+        {% for key, value in fields.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        <button type="submit" class="btn btn-success mt-3">Pay with eSewa</button>
+    </form>
+</div>
+<script>
+    setTimeout(() => {
+        document.getElementById('esewa-form').submit();
+    }, 1500);
+</script>
+{% endblock %}

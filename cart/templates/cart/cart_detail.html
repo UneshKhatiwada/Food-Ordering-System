@@ -1,0 +1,96 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Your Cart - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Your Cart</h1>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.food_item.image.url }}" alt="{{ item.food_item.name }}" 
+                                             style="width: 50px; height: 50px; object-fit: cover;" class="me-3 rounded">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.food_item.name }}</h6>
+                                            <small class="text-muted">{{ item.food_item.category.name }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'update_cart' item.id %}" class="d-flex">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" 
+                                               class="form-control" style="width: 70px;">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Update</button>
+                                    </form>
+                                </td>
+                                <td>${{ item.food_item.price }}</td>
+                                <td>${{ item.get_total_price }}</td>
+                                <td>
+                                    <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Subtotal</th>
+                            <td>${{ cart_total|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <th>Tax (10%)</th>
+                            <td>${{ tax|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <th>Delivery Fee</th>
+                            <td>${{ delivery_fee|floatformat:2 }}</td>
+                        </tr>
+                        <tr class="table-active">
+                            <th>Total</th>
+                            <td>${{ grand_total|floatformat:2 }}</td>
+                        </tr>
+                    </table>
+                    <a href="{% url 'checkout' %}" class="btn btn-primary w-100 mt-3">Proceed to Checkout</a>
+                    <a href="{% url 'item_list' %}" class="btn btn-outline-secondary w-100 mt-2">Continue Shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Your cart is empty. <a href="{% url 'item_list' %}">Browse our menu</a> to add items.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

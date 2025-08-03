@@ -1,0 +1,77 @@
+{% extends 'main/base.html' %}
+{% block title %}{{ food_item.name }} - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5 align-items-center">
+        <div class="col-lg-6">
+            <img src="{{ food_item.image.url }}" alt="{{ food_item.name }}" class="img-fluid rounded shadow" style="max-height: 500px; width: 100%; object-fit: cover;">
+        </div>
+        <div class="col-lg-6">
+            <h1 class="display-5 fw-bold">{{ food_item.name }}</h1>
+            <span class="badge bg-{% if food_item.food_type == 'Veg' %}success{% else %}danger{% endif %} fs-6 mb-3">
+                {{ food_item.food_type }}
+            </span>
+            <h3 class="text-primary fw-semibold mb-4">${{ food_item.price }}</h3>
+
+            <div class="mb-4">
+                <h5 class="fw-bold">Description</h5>
+                <p class="text-muted">{{ food_item.description }}</p>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="fw-bold">Category</h5>
+                <p class="text-muted">{{ food_item.category.name }}</p>
+            </div>
+
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_to_cart' food_item.id %}">
+                {% csrf_token %}
+                <div class="row g-3 align-items-center mb-4">
+                    <div class="col-auto">
+                        <label for="quantity" class="col-form-label fw-semibold">Quantity</label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" style="width: 100px;">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-lg btn-primary shadow-sm">
+                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                </button>
+            </form>
+            {% else %}
+            <div class="alert alert-info mt-4">
+                Please <a href="{% url 'login' %}" class="alert-link">login</a> to add items to your cart.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related_items %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4 fw-semibold">You Might Also Like</h3>
+            <div class="row g-4">
+                {% for item in related_items %}
+                <div class="col-md-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <img src="{{ item.image.url }}" class="card-img-top rounded-top" alt="{{ item.name }}" style="height: 150px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">{{ item.name }}</h5>
+                            <p class="text-muted mb-2">${{ item.price }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'item_detail' item.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                                {% if user.is_authenticated %}
+                                <a href="{% url 'add_to_cart' item.id %}" class="btn btn-sm btn-primary">Add to Cart</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

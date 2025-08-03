@@ -1,0 +1,144 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Home - FoodOrder{% endblock %}
+
+{% block content %}
+
+<div class="d-flex mt-2 mx-4">
+    <div class="container-fluid my-auto">
+        <div class="row">
+            <div class="col-lg-6 my-auto ps-5">
+                <h1 class="display-4 fw-normal">Your Favorite Meals,</h1>
+                <p class="display-4 fw-normal"><span style="font-weight: bold">Just </span> a Click Away</p>
+                <p class="fw-light">Order easily, enjoy endlessly — fresh, delicious food delivered straight to your home.</p>
+                <a href="{% url 'item_list' %}" class="btn btn-outline-dark rounded-pill mx-2 px-4 py-3" id="btn1">Order Now</a>
+                <a href="#" class="btn btn-outline-dark rounded-pill px-4 py-3" id="btn">Learn More</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="col-lg-9">
+                    <div class="card-body">
+                        <img src="{% static 'main/images/Front.png' %}" alt="" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 fw-bold">Featured Categories</h2>
+    <p class="text-center text-muted mb-5">Discover our most popular food categories</p>
+    <div class="row">
+        {% for category in featured_categories %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-effect">
+                <div class="position-relative">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/default-category.jpg' %}" class="card-img-top" alt="No image" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="category-badge">{{ category.item_count }} items</div>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title fw-bold">{{ category.name }}</h5>
+                    <p class="card-text text-muted">{{ category.description|truncatechars:100 }}</p>
+                    <a href="{% url 'item_list' %}?category={{ category.slug }}" class="btn btn-primary rounded-pill px-4">Explore</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="text-center mb-4 mt-5 fw-bold">Popular Items</h2>
+    <p class="text-center text-muted mb-5">Customers love these delicious choices</p>
+    <div class="row">
+        {% for item in popular_items %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 border-0 shadow-sm hover-effect">
+                <div class="position-relative">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}" style="height: 180px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/default-item.jpg' %}" class="card-img-top" alt="No image" style="height: 180px; object-fit: cover;">
+                    {% endif %}
+                    {% if item.discount_price %}
+                        <div class="discount-badge">Save ${{ item.price|floatformat:2|add:"-"|add:item.discount_price|floatformat:2 }}</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0">{{ item.name }}</h5>
+                        <div class="rating-badge">
+                            <i class="fas fa-star"></i> {{ item.average_rating|default:"4.5" }}
+                        </div>
+                    </div>
+                    <p class="card-text text-muted small mb-2">{{ item.description|truncatechars:50 }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            {% if item.discount_price %}
+                                <span class="text-danger fw-bold">${{ item.discount_price }}</span>
+                                <span class="text-muted text-decoration-line-through ms-2">${{ item.price }}</span>
+                            {% else %}
+                                <span class="fw-bold">${{ item.price }}</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'add_to_cart' item.id %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                            <i class="fas fa-cart-plus"></i> Add
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .hover-effect {
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .category-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background-color: rgba(0,0,0,0.7);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #dc3545;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+    
+    .rating-badge {
+        background-color: #ffc107;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}

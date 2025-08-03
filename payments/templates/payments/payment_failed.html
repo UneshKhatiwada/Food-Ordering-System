@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+{% block title %}Payment Failed - FoodOrder{% endblock %}
+{% block content %}
+<div class="container text-center">
+    <div class="card mt-5">
+        <div class="card-body">
+            <h2 class="text-danger"><i class="fas fa-times-circle"></i> Payment Failed</h2>
+            <p>{{ error_message }}</p>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-warning mt-3">Try Again</a>
+            <a href="{% url 'item_list' %}" class="btn btn-secondary mt-2">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

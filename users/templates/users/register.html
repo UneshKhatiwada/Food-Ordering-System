@@ -1,0 +1,59 @@
+{% extends 'main/base.html' %}
+{% block title %}Register - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 500px; border: 2px solid #f15a24; border-radius: 20px;">
+        <h3 class="text-center mb-4" style="color: #f15a24;">Create an Account</h3>
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="text-danger small">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="text-danger small">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="password1" class="form-label">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <div class="text-danger small">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="password2" class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="text-danger small">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn w-100" style="background-color: #f15a24; color: white; border-radius: 25px;">Register</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small>Already have an account? <a href="{% url 'login' %}" style="color: #f15a24;">Login here</a></small>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add Bootstrap classes to Django form fields
+    document.getElementById('id_username').className = 'form-control';
+    document.getElementById('id_email').className = 'form-control';
+    document.getElementById('id_password1').className = 'form-control';
+    document.getElementById('id_password2').className = 'form-control';
+</script>
+{% endblock %}

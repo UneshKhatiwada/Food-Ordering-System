@@ -1,0 +1,35 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}About - FoodOrder{% endblock %}
+{% block content %}
+<section class="about-section" id="about-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <div class="about-image">
+                    <img src="{% static 'main/images/abtt.jpeg' %}" alt="Delicious food served at FoodExpress">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <p class="text-uppercase text-muted mb-2">— About Us</p>
+                <h2 class="fw-bold display-5">Inspired by Taste,<br>Built on <span class="highlight">Quality</span></h2>
+                <p class="text-muted my-4">
+                    Passionate about quality, we create delicious <br> meals with fresh ingredients and care.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="fa fa-check-circle" style="color:#f15a24"></i> Fresh Food, Fast Delivery
+                    </li>
+                    <li class="mb-3">
+                        <i class="fa fa-check-circle" style="color:#f15a24"></i> Taste the Freshness in Every Bite
+                    </li>
+                    <li class="mb-3">
+                        <i class="fa fa-check-circle" style="color:#f15a24"></i> 10% off every Sunday for all food items
+                    </li>
+                </ul>
+                <a href="{% url 'about' %}" class="learn-more">Learn more →</a> 
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

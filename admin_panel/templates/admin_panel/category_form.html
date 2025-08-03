@@ -1,0 +1,45 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block page_title %}
+    {% if category %} Edit Category {% else %} Add Category {% endif %}
+{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'admin_categories' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left me-1"></i> Back to Categories
+</a>
+{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_name" class="form-label">Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="text-danger small">
+                    {{ form.name.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="text-danger small">
+                    {{ form.description.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if category %} Update Category {% else %} Add Category {% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

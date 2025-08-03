@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+{% block title %}Payment Successful - FoodOrder{% endblock %}
+{% block content %}
+<div class="container text-center">
+    <div class="card mt-5">
+        <div class="card-body">
+            <h2 class="text-success"><i class="fas fa-check-circle"></i> Payment Successful!</h2>
+            <p>Your order #{{ order.order_number }} has been placed successfully.</p>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-primary mt-3">View Order</a>
+            <a href="{% url 'item_list' %}" class="btn btn-secondary mt-2">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,396 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+  :root {
+    --orange: #ff6b00;
+    --orange-dark: #e65c00;
+    --orange-light: #ffefe5;
+    --gray-bg: #fef9f5;
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #e0e0e0;
+  }
+
+  .profile-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+  }
+
+  .profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--orange);
+    position: relative;
+  }
+
+  .profile-header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--orange);
+    margin: 10px auto 0;
+    border-radius: 2px;
+  }
+
+  .profile-image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 25px;
+  }
+
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--orange-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .edit-btn {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    background-color: var(--orange);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 30px auto 0;
+    box-shadow: 0 4px 8px rgba(255, 107, 0, 0.2);
+  }
+
+  .edit-btn:hover {
+    background-color: var(--orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 107, 0, 0.3);
+  }
+
+  .profile-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: var(--gray-bg);
+    border-radius: 12px;
+  }
+
+  .profile-section h4 {
+    color: var(--orange);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .profile-section h4::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 20px;
+    background: var(--orange);
+    border-radius: 3px;
+  }
+
+  .profile-info-row {
+    display: flex;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .profile-info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .profile-info-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 100px;
+  }
+
+  .profile-info-value {
+    color: var(--text-light);
+    flex: 1;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 99;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    background-color: white;
+    margin: 60px auto;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .close-btn:hover {
+    color: var(--orange);
+  }
+
+  .form-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .field-wrapper {
+    margin-bottom: 5px;
+  }
+
+  .field-wrapper label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+  }
+
+  .field-wrapper input:not([type="file"]),
+  .field-wrapper textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  .field-wrapper input:focus,
+  .field-wrapper textarea:focus {
+    border-color: var(--orange);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
+  }
+
+  .field-wrapper textarea[name="address"] {
+    resize: vertical;
+    min-height: 3.4em; 
+  }
+
+  .current-file-info {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin: 10px 0;
+  }
+
+  .file-clear-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+  }
+
+  .file-clear-label {
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #profile_pic-clear_id {
+    width: 16px;
+    transform: scale(1);
+    margin-left: 8px;
+    accent-color: var(--orange);
+  }
+
+  .save-btn {
+    background-color: var(--orange);
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(255, 107, 0, 0.2);
+  }
+
+  .save-btn:hover {
+    background-color: var(--orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(255, 107, 0, 0.3);
+  }
+
+  .field-wrapper small {
+    display: block;
+    margin-top: 6px;
+    color: #e74c3c;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 768px) {
+    .profile-container {
+      padding: 25px;
+      margin: 20px auto;
+    }
+
+    .profile-info-row {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .modal-content {
+      padding: 20px;
+    }
+  }
+</style>
+
+<div class="profile-container">
+  <h2 class="profile-header">My Profile</h2>
+
+  <div class="profile-image-container">
+    {% if user.profile.profile_pic %}
+      <img src="{{ user.profile.profile_pic.url }}" class="profile-image" alt="Profile Picture">
+    {% else %}
+      <div class="profile-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #999;">
+        <span style="font-size: 3rem;">👤</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="profile-section">
+    <h4>User Information</h4>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Username</span>
+      <span class="profile-info-value">{{ user.username }}</span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Email</span>
+      <span class="profile-info-value">{{ user.email }}</span>
+    </div>
+  </div>
+
+  <div class="profile-section">
+    <h4>Contact Information</h4>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Phone</span>
+      <span class="profile-info-value">{{ user.profile.phone|default:"Not provided" }}</span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Address</span>
+      <span class="profile-info-value">{{ user.profile.address|default:"Not provided" }}</span>
+    </div>
+  </div>
+
+  <button class="edit-btn" onclick="document.getElementById('editModal').style.display='block'">
+    Edit Profile
+  </button>
+</div>
+
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="document.getElementById('editModal').style.display='none'">&times;</span>
+    <h3 style="color: var(--orange); margin-bottom: 20px;">Edit Your Profile</h3>
+
+    <form method="POST" enctype="multipart/form-data" class="form-box">
+      {% csrf_token %}
+
+      <div class="field-wrapper">
+        <label>Profile Picture</label>
+        <div class="current-file-info">
+          {% if user.profile.profile_pic %}
+            A profile picture is currently set.
+          {% else %}
+            No profile picture set.
+          {% endif %}
+        </div>
+        {% if user.profile.profile_pic %}
+          <div class="file-clear-wrapper">
+            <label class="file-clear-label">Clear
+              <input type="checkbox" name="profile_pic-clear" id="profile_pic-clear_id">
+            </label>
+          </div>
+        {% endif %}
+        <input type="file" name="profile_pic" accept="image/*" id="id_profile_pic" style="margin:0;">
+      </div>
+
+      {% for field in u_form %}
+        <div class="field-wrapper">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <small>{{ field.errors|striptags }}</small>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      {% for field in p_form %}
+        {% if field.name != 'profile_pic' %}
+          <div class="field-wrapper">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.name == 'address' %}
+              {{ field|attr:"rows:2" }}
+            {% else %}
+              {{ field }}
+            {% endif %}
+            {% if field.errors %}
+              <small>{{ field.errors|striptags }}</small>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+{% endblock %}

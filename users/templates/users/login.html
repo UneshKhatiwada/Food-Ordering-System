@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Login - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 450px; border: 2px solid #f15a24; border-radius: 20px;">
+        <h3 class="text-center mb-4" style="color: #f15a24;">Welcome Back 👋</h3>
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                <label class="form-check-label" for="remember">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn w-100" style="background-color: #f15a24; color: white; border-radius: 25px;">Login</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <small>Don't have an account? 
+                <a href="{% url 'register' %}" style="color: #f15a24;">Register here</a>
+            </small><br>
+            <small><a href="{% url 'password_reset' %}" style="color: #f15a24;">Forgot your password?</a></small>
+        </div>
+    </div>
+</div>
+{% endblock %}

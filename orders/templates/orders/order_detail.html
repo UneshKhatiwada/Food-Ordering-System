@@ -1,0 +1,193 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Order #{{ order.order_number }} - FoodOrder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Order #{{ order.order_number }}</h1>
+        <span class="badge 
+            {% if order.status == 'Delivered' %}bg-success
+            {% elif order.status == 'Cancelled' %}bg-danger
+            {% elif order.status == 'Processing' %}bg-warning
+            {% else %}bg-info{% endif %} fs-6">
+            {{ order.status }}
+        </span>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ item.food_item.image.url }}" alt="{{ item.food_item.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="me-3 rounded">
+                                        <div>
+                                            <h6 class="mb-0">{{ item.food_item.name }}</h6>
+                                            <small class="text-muted">{{ item.food_item.category.name }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ item.price }}</td>
+                                <td>${{ item.get_total_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Order Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item {% if order.status == 'Pending' %}active{% endif %}">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h6>Order Placed</h6>
+                                <p>{{ order.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item {% if order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Delivered' %}active{% endif %}">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h6>Processing</h6>
+                                {% if order.status == 'Pending' %}
+                                <p>Waiting for restaurant confirmation</p>
+                                {% else %}
+                                <p>{{ order.updated_at|date:"M d, Y H:i" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="timeline-item {% if order.status == 'Shipped' or order.status == 'Delivered' %}active{% endif %}">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h6>Shipped</h6>
+                                {% if order.status == 'Delivered' %}
+                                <p>{{ order.updated_at|date:"M d, Y H:i" }}</p>
+                                {% elif order.status == 'Shipped' %}
+                                <p>On the way</p>
+                                {% else %}
+                                <p>Preparing for delivery</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="timeline-item {% if order.status == 'Delivered' %}active{% endif %}">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h6>Delivered</h6>
+                                {% if order.status == 'Delivered' %}
+                                <p>{{ order.updated_at|date:"M d, Y H:i" }}</p>
+                                {% else %}
+                                <p>Estimated delivery time: 30-45 minutes</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Subtotal</th>
+                            <td>${{ order.total }}</td>
+                        </tr>
+                        <tr>
+                            <th>Delivery Fee</th>
+                            <td>${{ delivery_fee }}</td>
+                        </tr>
+                        <tr class="table-active">
+                            <th>Total</th>
+                            <td>${{ total_with_delivery }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Delivery Information</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Delivery Address</h6>
+                    <p>{{ order.shipping_address }}</p>
+                    
+                    <h6 class="mt-3">Contact Number</h6>
+                    <p>{{ order.phone }}</p>
+                    
+                    {% if order.notes %}
+                    <h6 class="mt-3">Special Instructions</h6>
+                    <p>{{ order.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if order.status == 'Pending' %}
+            <div class="d-grid">
+                <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger">Cancel Order</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 1rem;
+    }
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+    .timeline-point {
+        position: absolute;
+        left: -1rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        top: 4px;
+    }
+    .timeline-item.active .timeline-point {
+        background-color: #0d6efd;
+    }
+    .timeline-content {
+        padding-left: 1rem;
+    }
+    .timeline-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: -0.7rem;
+        top: 16px;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+</style>
+{% endblock %}
