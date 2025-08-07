@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from decimal import Decimal  
+from django.conf import settings
+from decimal import Decimal
 import random
 import string
-import requests
 
 from .models import Order, OrderItem
 from cart.models import Cart
@@ -19,7 +19,6 @@ def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     delivery_fee = Decimal('5.00')
     total_with_delivery = order.total
-
     context = {
         'order': order,
         'delivery_fee': delivery_fee,
@@ -35,7 +34,7 @@ def checkout(request):
     if not cart_items:
         messages.warning(request, 'Your cart is empty!')
         return redirect('item_list')
-    
+
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         order_number = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -67,13 +66,25 @@ def checkout(request):
             success_url = request.build_absolute_uri(f'/orders/esewa-verify/?oid={order.id}')
             failure_url = request.build_absolute_uri('/orders/esewa-failed/')
 
-            # Redirect to eSewa payment page with sandbox merchant code EPAYTEST
-            esewa_url = (
-                f"https://esewa.com.np/epay/main?"
-                f"amt={total_with_delivery}&pdc=0&psc=0&txAmt=0&tAmt={total_with_delivery}"
-                f"&pid={order.order_number}&scd=EPAYTEST&su={success_url}&fu={failure_url}"
-            )
-            return redirect(esewa_url)
+            # Prepare form fields to post to eSewa
+            form_fields = {
+                'amt': f"{total_with_delivery:.2f}",
+                'pdc': '0',
+                'psc': '0',
+                'txAmt': '0',
+                'tAmt': f"{total_with_delivery:.2f}",
+                'pid': order.order_number,
+                'scd': settings.ESEWA_MERCHANT_CODE,
+                'su': success_url,
+                'fu': failure_url
+            }
+
+            context = {
+                'form_action': settings.ESEWA_FORM_URL,
+                'fields': form_fields,
+                'order': order
+            }
+            return render(request, 'payments/esewa_request.html', context)
 
         messages.success(request, 'Your order has been placed successfully!')
         return redirect('order_detail', order.id)
@@ -92,7 +103,9 @@ def checkout(request):
 
 @login_required
 def esewa_verify(request):
-    import json
+    import xml.etree.ElementTree as ET
+    import requests
+    from django.contrib import messages
 
     oid = request.GET.get('oid')
     ref_id = request.GET.get('refId')
@@ -100,19 +113,19 @@ def esewa_verify(request):
     order = get_object_or_404(Order, id=oid, user=request.user)
 
     data = {
-        'amt': str(order.total),
-        'scd': 'EPAYTEST',  # Sandbox merchant code
+        'amt': f"{order.total:.2f}",
+        'scd': settings.ESEWA_MERCHANT_CODE,
         'pid': order.order_number,
         'rid': ref_id
     }
 
     try:
-        response = requests.post('https://rc.esewa.com.np/api/epay/transaction', data=data, timeout=10)
+        response = requests.post(settings.ESEWA_VERIFY_URL, data=data, timeout=10)
         response.raise_for_status()
 
-        resp_json = response.json()
-
-        if resp_json.get('status') == 'Success':
+        root = ET.fromstring(response.content)
+        response_code = root.find('responseCode')
+        if response_code is not None and response_code.text.strip() == 'Success':
             order.status = 'Processing'
             order.is_payment_verified = True
             order.esewa_ref_id = ref_id
@@ -122,7 +135,6 @@ def esewa_verify(request):
             order.status = 'Cancelled'
             order.save()
             messages.error(request, 'Payment verification failed. Your order was cancelled.')
-
     except Exception as e:
         messages.error(request, f'Payment verification error: {str(e)}')
         order.status = 'Cancelled'
@@ -138,12 +150,10 @@ def esewa_failed(request):
 @login_required
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    
     if order.status == 'Pending':
         order.status = 'Cancelled'
         order.save()
         messages.success(request, 'Your order has been cancelled.')
     else:
         messages.error(request, 'This order cannot be cancelled.')
-    
     return redirect('order_detail', order.id)

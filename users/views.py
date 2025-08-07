@@ -22,10 +22,8 @@ def user_login(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            # Log the user in with Django's default backend or your custom backend
-            auth_login(request, user)  # If you want to specify backend, ensure it's correctly configured
-            
-            # IMPORTANT: Set your custom session key to support FrontendAuthenticationMiddleware
+          
+            auth_login(request, user) 
             request.session['frontend_user_id'] = user.id
             
             messages.success(request, f'Welcome back, {user.username}!')
@@ -35,10 +33,10 @@ def user_login(request):
     return render(request, 'users/login.html', {'form': form})
 
 def user_logout(request):
-    # Remove your custom frontend user id from session first
+    
     request.session.pop('frontend_user_id', None)
     
-    # Log out the user using Django's default logout
+    
     auth_logout(request)
     
     messages.info(request, 'You have been logged out.')
@@ -60,7 +58,7 @@ def profile(request):
             u_form.save()
             p_form.save()
             messages.success(request, 'Your profile has been updated!')
-            return redirect('profile')  # Redirect without edit param (view mode)
+            return redirect('profile') 
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)

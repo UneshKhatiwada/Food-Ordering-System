@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
+    'jazzmin',       
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,6 +137,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# If you have custom static folder, add this to find your logo image
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -155,10 +161,11 @@ LOGIN_URL = 'login'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Stripe settings (for payments)
-STRIPE_PUBLIC_KEY = 'your_stripe_public_key'
-STRIPE_SECRET_KEY = 'your_stripe_secret_key'
-STRIPE_WEBHOOK_SECRET = 'your_webhook_secret'
+# eSewa Integration (Test Mode)
+ESEWA_FORM_URL = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'
+ESEWA_VERIFY_URL = 'https://rc.esewa.com.np/api/epay/transaction'
+ESEWA_MERCHANT_CODE = 'EPAYTEST'  
+
 
 pymysql.install_as_MySQLdb()
 
@@ -216,6 +223,40 @@ JAZZMIN_SETTINGS = {
             "order": 4,
         },
     ],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        
+      
+        "menu": "fas fa-utensils",
+        "orders": "fas fa-shopping-cart",
+        "cart": "fas fa-shopping-basket",
+        "payments": "fas fa-credit-card",
+        "users": "fas fa-users",
+        
+    
+        "menu.FoodItem": "fas fa-hamburger",
+        "menu.Category": "fas fa-tags",
+        "orders.Order": "fas fa-receipt",
+    },
+
+    "site_logo": "images/logoo.png",
+
+    "theme": "dark",  
+    "navbar_bg": "f15a24",
+    "navbar_text": "ffffff",
+    "sidebar_bg": "23272a",
+    "sidebar_hover_bg": "f15a24",
+    "sidebar_active_bg": "e04e1b",
+    "sidebar_active_text": "ffffff",
+    "topmenu_bg": "f15a24",
+    "topmenu_hover_bg": "e04e1b",
+    "site_bg": "2c2f33",
+    "site_text_color": "ffffff",
+
+
+     "custom_css": "css/custom_admin.css", 
 }
 
 LOGGING = {
@@ -233,3 +274,4 @@ LOGGING = {
 }
 
 
+LOGIN_URL = 'login'

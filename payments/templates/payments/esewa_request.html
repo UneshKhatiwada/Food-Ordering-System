@@ -3,7 +3,8 @@
 {% block content %}
 <div class="container text-center mt-5">
     <h2>Redirecting to eSewa...</h2>
-    <form action="{{ esewa_payment_url }}" method="POST" id="esewa-form">
+    <form action="{{ form_action }}" method="POST" id="esewa-form">
+        {% csrf_token %}
         {% for key, value in fields.items %}
             <input type="hidden" name="{{ key }}" value="{{ value }}">
         {% endfor %}

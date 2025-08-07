@@ -12,7 +12,6 @@ class FoodItemListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(is_available=True)
         
-        # Search functionality
         search_query = self.request.GET.get('q')
         if search_query:
             queryset = queryset.filter(
@@ -20,7 +19,6 @@ class FoodItemListView(ListView):
                 Q(description__icontains=search_query)
             )
         
-        # Category filter
         category_slug = self.request.GET.get('category')
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
