@@ -25,7 +25,7 @@
                     <td>{{ order.order_number }}</td>
                     <td>{{ order.created_at|date:"M d, Y" }}</td>
                     <td>{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
-                    <td>${{ order.total }}</td>
+                    <td>Rs.{{ order.total }}</td>
                     <td>
                         <span class="badge 
                             {% if order.status == 'Delivered' %}bg-success

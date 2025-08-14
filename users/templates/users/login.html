@@ -30,7 +30,7 @@
                 <label class="form-check-label" for="remember">Remember me</label>
             </div>
 
-            <button type="submit" class="btn w-100" style="background-color: #f15a24; color: white; border-radius: 25px;">Login</button>
+            <button type="submit" class="btn w-100 px-2 py-3" style="border-radius: 25px;" id="btn3">Login</button>
         </form>
 
         <div class="text-center mt-3">
@@ -42,3 +42,17 @@
     </div>
 </div>
 {% endblock %}
+<style>
+ #btn3 {
+    background-color: #f65a08;
+    color: white;
+    border: 1px solid transparent;  
+    transition: all 0.3s ease;       
+}
+
+#btn3:hover {
+    background-color: white;
+    color: #f65a08;
+    border: 1px solid #f65a08;       
+}
+</style>

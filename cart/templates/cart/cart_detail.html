@@ -42,8 +42,8 @@
                                         <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Update</button>
                                     </form>
                                 </td>
-                                <td>${{ item.food_item.price }}</td>
-                                <td>${{ item.get_total_price }}</td>
+                                <td>Rs.{{ item.food_item.price }}</td>
+                                <td>Rs.{{ item.get_total_price }}</td>
                                 <td>
                                     <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger">
                                         <i class="fas fa-trash-alt"></i>
@@ -66,19 +66,19 @@
                     <table class="table">
                         <tr>
                             <th>Subtotal</th>
-                            <td>${{ cart_total|floatformat:2 }}</td>
+                            <td>Rs.{{ cart_total|floatformat:2 }}</td>
                         </tr>
                         <tr>
                             <th>Tax (10%)</th>
-                            <td>${{ tax|floatformat:2 }}</td>
+                            <td>Rs.{{ tax|floatformat:2 }}</td>
                         </tr>
                         <tr>
                             <th>Delivery Fee</th>
-                            <td>${{ delivery_fee|floatformat:2 }}</td>
+                            <td>Rs.{{ delivery_fee|floatformat:2 }}</td>
                         </tr>
                         <tr class="table-active">
                             <th>Total</th>
-                            <td>${{ grand_total|floatformat:2 }}</td>
+                            <td>Rs.{{ grand_total|floatformat:2 }}</td>
                         </tr>
                     </table>
                     <a href="{% url 'checkout' %}" class="btn btn-primary w-100 mt-3">Proceed to Checkout</a>

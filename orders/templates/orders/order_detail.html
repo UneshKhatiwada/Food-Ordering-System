@@ -44,8 +44,8 @@
                                     </div>
                                 </td>
                                 <td>{{ item.quantity }}</td>
-                                <td>${{ item.price }}</td>
-                                <td>${{ item.get_total_price }}</td>
+                                <td>Rs.{{ item.price }}</td>
+                                <td>Rs.{{ item.get_total_price }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -115,15 +115,15 @@
                     <table class="table">
                         <tr>
                             <th>Subtotal</th>
-                            <td>${{ order.total }}</td>
+                            <td>Rs.{{ order.total }}</td>
                         </tr>
                         <tr>
                             <th>Delivery Fee</th>
-                            <td>${{ delivery_fee }}</td>
+                            <td>Rs.{{ delivery_fee }}</td>
                         </tr>
                         <tr class="table-active">
                             <th>Total</th>
-                            <td>${{ total_with_delivery }}</td>
+                            <td>Rs.{{ total_with_delivery }}</td>
                         </tr>
                     </table>
                 </div>
